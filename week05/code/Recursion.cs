@@ -13,10 +13,12 @@ public static class Recursion
     /// n <= 0, just return 0.   A loop should not be used.
     /// </summary>
     public static int SumSquaresRecursive(int n)
-    {
-        // TODO Start Problem 1
+{
+    if (n <= 0)
         return 0;
-    }
+
+    return n * n + SumSquaresRecursive(n - 1);
+}
 
     /// <summary>
     /// #############
@@ -37,10 +39,21 @@ public static class Recursion
     /// You can assume that the size specified is always valid (between 1 
     /// and the length of the letters list).
     /// </summary>
-    public static void PermutationsChoose(List<string> results, string letters, int size, string word = "")
+  public static void PermutationsChoose(List<string> results, string letters, int size, string word = "")
+{
+    if (word.Length == size)
     {
-        // TODO Start Problem 2
+        results.Add(word);
+        return;
     }
+
+    for (int i = 0; i < letters.Length; i++)
+    {
+        char letter = letters[i];
+        string remaining = letters.Remove(i, 1);
+        PermutationsChoose(results, remaining, size, word + letter);
+    }
+}
 
     /// <summary>
     /// #############
@@ -96,17 +109,26 @@ public static class Recursion
         if (s == 3)
             return 4;
 
-        // TODO Start Problem 3
+     if (remember == null)
+    remember = new Dictionary<int, decimal>();
 
-        // Solve using recursion
-        decimal ways = CountWaysToClimb(s - 1) + CountWaysToClimb(s - 2) + CountWaysToClimb(s - 3);
-        return ways;
-    }
+if (remember.ContainsKey(s))
+    return remember[s];
 
-    /// <summary>
-    /// #############
-    /// # Problem 4 #
-    /// #############
+decimal ways =
+    CountWaysToClimb(s - 1, remember) +
+    CountWaysToClimb(s - 2, remember) +
+    CountWaysToClimb(s - 3, remember);
+
+remember[s] = ways;
+
+return ways;
+}
+
+/// <summary>
+/// #############
+/// # Problem 4 #
+/// #############
     /// A binary string is a string consisting of just 1's and 0's.  For example, 1010111 is 
     /// a binary string.  If we introduce a wildcard symbol * into the string, we can say that 
     /// this is now a pattern for multiple binary strings.  For example, 101*1 could be used 
@@ -116,28 +138,56 @@ public static class Recursion
     /// Using recursion, insert all possible binary strings for a given pattern into the results list.  You might find 
     /// some of the string functions like IndexOf and [..X] / [X..] to be useful in solving this problem.
     /// </summary>
-    public static void WildcardBinary(string pattern, List<string> results)
+  public static void WildcardBinary(string pattern, List<string> results)
+{
+    int index = pattern.IndexOf('*');
+
+    if (index == -1)
     {
-        // TODO Start Problem 4
+        results.Add(pattern);
+        return;
     }
+
+    WildcardBinary(pattern[..index] + "0" + pattern[(index + 1)..], results);
+    WildcardBinary(pattern[..index] + "1" + pattern[(index + 1)..], results);
+}
 
     /// <summary>
     /// Use recursion to insert all paths that start at (0,0) and end at the
     /// 'end' square into the results list.
     /// </summary>
-    public static void SolveMaze(List<string> results, Maze maze, int x = 0, int y = 0, List<ValueTuple<int, int>>? currPath = null)
+public static void SolveMaze(List<string> results, Maze maze, int x = 0, int y = 0, List<ValueTuple<int, int>>? currPath = null)
+{
+    if (currPath == null)
+        currPath = new List<ValueTuple<int, int>>();
+
+    // ADD THESE 3 LINES
+    if (currPath.Contains((x, y)))
+        return;
+
+    currPath.Add((x, y));
+
+    if (maze.IsEnd(x, y))
     {
-        // If this is the first time running the function, then we need
-        // to initialize the currPath list.
-        if (currPath == null) {
-            currPath = new List<ValueTuple<int, int>>();
-        }
-        
-        // currPath.Add((1,2)); // Use this syntax to add to the current path
-
-        // TODO Start Problem 5
-        // ADD CODE HERE
-
-        // results.Add(currPath.AsString()); // Use this to add your path to the results array keeping track of complete maze solutions when you find the solution.
+        results.Add(currPath.AsString());
+        return;
     }
-}
+
+    // Left
+    if (maze.IsValidMove(currPath, x - 1, y))
+        SolveMaze(results, maze, x - 1, y, new List<ValueTuple<int, int>>(currPath));
+
+    // Right
+    if (maze.IsValidMove(currPath, x + 1, y))
+        SolveMaze(results, maze, x + 1, y, new List<ValueTuple<int, int>>(currPath));
+
+    // Up
+    if (maze.IsValidMove(currPath, x, y - 1))
+        SolveMaze(results, maze, x, y - 1, new List<ValueTuple<int, int>>(currPath));
+
+// Down
+    if (maze.IsValidMove(currPath, x, y + 1))
+        SolveMaze(results, maze, x, y + 1, new List<ValueTuple<int, int>>(currPath));
+}   // Ends SolveMaze
+
+}   // Ends Recursion class
